@@ -1,7 +1,8 @@
-module rotor (in, out, rotate, wiring_config);
+module rotor (in, out, rotate, notch, wiring_config);
 	input [25:0]in;
-	input [1:0]wiring_config;
+	input [1:0]wiring_config; // Rotor I: 00, Rotor II: 01, Rotor III: 10, No Encryption: 10
 	input rotate;
+	output reg notch;
 	output [25:0]out;
 
 	localparam A = 5'd0, B = 5'd1, C = 5'd2, D = 5'd3, E = 5'd4, F = 5'd5, G = 5'd6, H = 5'd7, I = 5'd8, J = 5'd9, K = 5'd10, L = 5'd11, M = 5'd12, N = 5'd13, 
@@ -16,8 +17,8 @@ module rotor (in, out, rotate, wiring_config);
 
 	rotor_wiring w1(.in(offseti[25:0] | offseti[51:26]), .out(out2[25:0]), .wiring_config(wiring_config));
 
-	always @(posedge rotate)
-	begin
+	always @(posedge rotate) // Rotational position of the rotor, not to be confused with ringsetting. 
+	begin: state_table
 		case(curr_position)
 		A: curr_position = B;
 		B: curr_position = C;
@@ -48,134 +49,148 @@ module rotor (in, out, rotate, wiring_config);
 		default: curr_position = A;
 		endcase
 	end
-	
+
+	always @(*) // Notch for next rotor's turnover, based on rotor#
+	begin
+		if (curr_position == R && wiring_config == 2'b00)
+			notch <= 1;
+		else if (curr_position == F && wiring_config == 2'b01)
+			notch <= 1;
+		else if (curr_position == W && wiring_config == 2'b10)
+			notch <= 1;
+		else
+			notch <= 0;
+	end	
 endmodule
 
 
 
 module rotor_wiring (in, out, wiring_config);
-	input [25:0]in;
-	input [1:0]wiring_config; // Rotor I: 00, Rotor II: 01, Rotor III: 10, No Encryption: 10
-	output reg [25:0]out;
+	inout [25:0]in;
+	input [1:0]wiring_config; 
+	inout [25:0]out;
 
-	always@(*)
+	assign in[0] = out[5];
+	//assign out[5] = in[0];
+	
+	/*always@(*)
 	begin
 		if (wiring_config == 2'b00)
 		begin
-			out[4] <= in[0];
-			out[10] <= in[1];
-			out[12] <= in[2];
-			out[5] <= in[3];
-			out[11] <= in[4];
-			out[6] <= in[5];
-			out[3] <= in[6];
-			out[16] <= in[7];
-			out[21] <= in[8];
-			out[25] <= in[9];
-			out[13] <= in[10];
-			out[19] <= in[11];
-			out[14] <= in[12];
-			out[22] <= in[13];
-			out[24] <= in[14];
-			out[7] <= in[15];
-			out[23] <= in[16];
-			out[20] <= in[17];
-			out[18] <= in[18];
-			out[15] <= in[19];
-			out[0] <= in[20];
-			out[8] <= in[21];
-			out[1] <= in[22];
-			out[17] <= in[23];
-			out[2] <= in[24];
-			out[9] <= in[25];
+			out[4] = in[0];
+			out[10] = in[1];
+			out[12] = in[2];
+			out[5] = in[3];
+			out[11] = in[4];
+			out[6] = in[5];
+			out[3] = in[6];
+			out[16] = in[7];
+			out[21] = in[8];
+			out[25] = in[9];
+			out[13] = in[10];
+			out[19] = in[11];
+			out[14] = in[12];
+			out[22] = in[13];
+			out[24] = in[14];
+			out[7] = in[15];
+			out[23] = in[16];
+			out[20] = in[17];
+			out[18] = in[18];
+			out[15] = in[19];
+			out[0] = in[20];
+			out[8] = in[21];
+			out[1] = in[22];
+			out[17] = in[23];
+			out[2] = in[24];
+			out[9] = in[25];
 		end
 		else if (wiring_config == 2'b01)
 		begin
-			out[0] <= in[0];
-			out[9] <= in[1];
-			out[3] <= in[2];
-			out[10] <= in[3];
-			out[18] <= in[4];
-			out[8] <= in[5];
-			out[17] <= in[6];
-			out[20] <= in[7];
-			out[23] <= in[8];
-			out[1] <= in[9];
-			out[11] <= in[10];
-			out[7] <= in[11];
-			out[22] <= in[12];
-			out[19] <= in[13];
-			out[12] <= in[14];
-			out[2] <= in[15];
-			out[16] <= in[16];
-			out[6] <= in[17];
-			out[25] <= in[18];
-			out[13] <= in[19];
-			out[15] <= in[20];
-			out[24] <= in[21];
-			out[5] <= in[22];
-			out[21] <= in[23];
-			out[14] <= in[24];
-			out[4] <= in[25];
+			out[0] = in[0];
+			out[9] = in[1];
+			out[3] = in[2];
+			out[10] = in[3];
+			out[18] = in[4];
+			out[8] = in[5];
+			out[17] = in[6];
+			out[20] = in[7];
+			out[23] = in[8];
+			out[1] = in[9];
+			out[11] = in[10];
+			out[7] = in[11];
+			out[22] = in[12];
+			out[19] = in[13];
+			out[12] = in[14];
+			out[2] = in[15];
+			out[16] = in[16];
+			out[6] = in[17];
+			out[25] = in[18];
+			out[13] = in[19];
+			out[15] = in[20];
+			out[24] = in[21];
+			out[5] = in[22];
+			out[21] = in[23];
+			out[14] = in[24];
+			out[4] = in[25];
 		end
 		else if (wiring_config == 2'b10)
 		begin
-			out[1] <= in[0];
-			out[3] <= in[1];
-			out[5] <= in[2];
-			out[7] <= in[3];
-			out[9] <= in[4];
-			out[11] <= in[5];
-			out[2] <= in[6];
-			out[15] <= in[7];
-			out[17] <= in[8];
-			out[19] <= in[9];
-			out[23] <= in[10];
-			out[21] <= in[11];
-			out[25] <= in[12];
-			out[13] <= in[13];
-			out[24] <= in[14];
-			out[4] <= in[15];
-			out[8] <= in[16];
-			out[22] <= in[17];
-			out[6] <= in[18];
-			out[0] <= in[19];
-			out[10] <= in[20];
-			out[12] <= in[21];
-			out[20] <= in[22];
-			out[18] <= in[23];
-			out[16] <= in[24];
-			out[14] <= in[25];
+			out[1] = in[0];
+			out[3] = in[1];
+			out[5] = in[2];
+			out[7] = in[3];
+			out[9] = in[4];
+			out[11] = in[5];
+			out[2] = in[6];
+			out[15] = in[7];
+			out[17] = in[8];
+			out[19] = in[9];
+			out[23] = in[10];
+			out[21] = in[11];
+			out[25] = in[12];
+			out[13] = in[13];
+			out[24] = in[14];
+			out[4] = in[15];
+			out[8] = in[16];
+			out[22] = in[17];
+			out[6] = in[18];
+			out[0] = in[19];
+			out[10] = in[20];
+			out[12] = in[21];
+			out[20] = in[22];
+			out[18] = in[23];
+			out[16] = in[24];
+			out[14] = in[25];
 		end
 		else
 		begin
-			out[0] <= in[0];
-			out[1] <= in[1];
-			out[2] <= in[2];
-			out[3] <= in[3];
-			out[4] <= in[4];
-			out[5] <= in[5];
-			out[6] <= in[6];
-			out[7] <= in[7];
-			out[8] <= in[8];
-			out[9] <= in[9];
-			out[10] <= in[10];
-			out[11] <= in[11];
-			out[12] <= in[12];
-			out[13] <= in[13];
-			out[14] <= in[14];
-			out[15] <= in[15];
-			out[16] <= in[16];
-			out[17] <= in[17];
-			out[18] <= in[18];
-			out[19] <= in[19];
-			out[20] <= in[20];
-			out[21] <= in[21];
-			out[22] <= in[22];
-			out[23] <= in[23];
-			out[24] <= in[24];
-			out[25] <= in[25];
+			out[0] = in[0];
+			out[1] = in[1];
+			out[2] = in[2];
+			out[3] = in[3];
+			out[4] = in[4];
+			out[5] = in[5];
+			out[6] = in[6];
+			out[7] = in[7];
+			out[8] = in[8];
+			out[9] = in[9];
+			out[10] = in[10];
+			out[11] = in[11];
+			out[12] = in[12];
+			out[13] = in[13];
+			out[14] = in[14];
+			out[15] = in[15];
+			out[16] = in[16];
+			out[17] = in[17];
+			out[18] = in[18];
+			out[19] = in[19];
+			out[20] = in[20];
+			out[21] = in[21];
+			out[22] = in[22];
+			out[23] = in[23];
+			out[24] = in[24];
+			out[25] = in[25];
 		end
-	end
+	end */
 endmodule
 
