@@ -5,6 +5,7 @@ module plugboardChanger(INPUT, OUTPUT, CHANGETO, CHANGE);
     input CHANGE;
     
     output [25:0] OUTPUT;
+    reg OUTPUT;
     
     always @(*)
 	begin
