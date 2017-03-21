@@ -46,7 +46,6 @@ module plugboardLUT(IN, OUT, CHANGETO);
 	26'd16777216: OUT = CHANGETO;
 	26'd33554432: OUT = CHANGETO;
 	default: OUT=26'd0;
-	
     endcase
 endmodule
 
