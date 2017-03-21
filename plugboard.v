@@ -1,0 +1,52 @@
+module plugboard(INPUT, OUTPUT, CHANGETO);
+
+    input [25:0] INPUT;
+    input [25:0] CHANGETO;
+    output [25:0] OUTPUT;
+    
+    plugboardLUT plugboardLookup(.IN(INPUT), .OUT(OUTPUT), .CHANGETO(CHANGETO));
+    
+endmodule
+
+
+module plugboardLUT(IN, OUT, CHANGETO);
+
+    input [25:0] IN;
+    input [25:0] CHANGETO;
+    output [25:0] OUT;
+    
+    reg OUT;
+    
+    always @(*)
+    case (IN)
+	26'd1: OUT = CHANGETO;
+	26'd2: OUT = CHANGETO;
+	26'd4: OUT = CHANGETO;
+	26'd8: OUT = CHANGETO;
+	26'd16: OUT = CHANGETO;
+	26'd32: OUT = CHANGETO;
+	26'd64: OUT = CHANGETO;
+	26'd128: OUT = CHANGETO;
+	26'd256: OUT = CHANGETO;
+	26'd512: OUT = CHANGETO;
+	26'd1024: OUT = CHANGETO;
+	26'd2048: OUT = CHANGETO;
+	26'd4096: OUT = CHANGETO;
+	26'd8192: OUT = CHANGETO;
+	26'd16384: OUT = CHANGETO;
+	26'd32768: OUT = CHANGETO;
+	26'd65536: OUT = CHANGETO;
+	26'd131072: OUT = CHANGETO;
+	26'd262144: OUT = CHANGETO;
+	26'd524288: OUT = CHANGETO;
+	26'd1048576: OUT = CHANGETO;
+	26'd2097152: OUT = CHANGETO;
+	26'd4194304: OUT = CHANGETO;
+	26'd8388608: OUT = CHANGETO;
+	26'd16777216: OUT = CHANGETO;
+	26'd33554432: OUT = CHANGETO;
+	default: OUT=26'd0;
+	
+    endcase
+endmodule
+
