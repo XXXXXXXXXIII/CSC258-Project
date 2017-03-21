@@ -3,9 +3,7 @@ module reflector(in, out);
 
     input [25:0] in;
     output [25:0] out;
-    
-    always @(*)
-        begin
+
             // A            Q
             assign out[0] = in[16];
             // B            Y
@@ -58,5 +56,4 @@ module reflector(in, out);
             assign out[24] = in[1];
             // Z            L
             assign out[25] = in[11];
-        end    
 endmodule
