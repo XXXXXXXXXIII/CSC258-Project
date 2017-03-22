@@ -1,6 +1,6 @@
 module rotor (in, out, rotate, notch, wiring_config);
 	input [25:0]in;
-	input [1:0]wiring_config; // Rotor I: 00, Rotor II: 01, Rotor III: 10, No Encryption: 10
+	input [2:0]wiring_config; // Rotor I: 000, Rotor II: 001, Rotor III: 010, No Encryption: 011. 1xx for reverse
 	input rotate;
 	output reg notch;
 	output [25:0]out;
@@ -10,12 +10,17 @@ module rotor (in, out, rotate, notch, wiring_config);
 
 	reg [4:0]curr_position;
 	wire [51:0]offseti, offseto;
-	wire [25:0]out2;
+	wire [51:0]out2;
 	assign offseti = in[25:0] << curr_position;
-	assign offseto = out2[25:0] << curr_position;
+	assign offseto = out2[51:0] >> curr_position;
 	assign out[25:0] = (offseto[25:0] | offseto[51:26]);
 
-	rotor_wiring w1(.in(offseti[25:0] | offseti[51:26]), .out(out2[25:0]), .wiring_config(wiring_config));
+	initial begin
+		notch <= 0;
+		curr_position <= A;
+	end
+
+	rotor_wiring w1(.in(offseti[25:0] | offseti[51:26]), .out(out2[51:26]), .wiring_config(wiring_config[2:0]));
 
 	always @(posedge rotate) // Rotational position of the rotor, not to be confused with ringsetting. 
 	begin: state_table
@@ -52,11 +57,11 @@ module rotor (in, out, rotate, notch, wiring_config);
 
 	always @(*) // Notch for next rotor's turnover, based on rotor#
 	begin
-		if (curr_position == R && wiring_config == 2'b00)
+		if (curr_position == R && wiring_config == 3'b000)
 			notch <= 1;
-		else if (curr_position == F && wiring_config == 2'b01)
+		else if (curr_position == F && wiring_config == 3'b001)
 			notch <= 1;
-		else if (curr_positoin == W && wiring_config == 2'b10)
+		else if (curr_position == W && wiring_config == 3'b010)
 			notch <= 1;
 		else
 			notch <= 0;
@@ -67,12 +72,16 @@ endmodule
 
 module rotor_wiring (in, out, wiring_config);
 	input [25:0]in;
-	input [1:0]wiring_config; 
+	input [2:0]wiring_config; 
 	output reg [25:0]out;
+
+	initial begin
+		out <= 0;
+	end
 
 	always@(*)
 	begin
-		if (wiring_config == 2'b00)
+		if (wiring_config == 3'b000)
 		begin
 			out[4] <= in[0];
 			out[10] <= in[1];
@@ -101,7 +110,7 @@ module rotor_wiring (in, out, wiring_config);
 			out[2] <= in[24];
 			out[9] <= in[25];
 		end
-		else if (wiring_config == 2'b01)
+		else if (wiring_config == 3'b001)
 		begin
 			out[0] <= in[0];
 			out[9] <= in[1];
@@ -130,7 +139,7 @@ module rotor_wiring (in, out, wiring_config);
 			out[14] <= in[24];
 			out[4] <= in[25];
 		end
-		else if (wiring_config == 2'b10)
+		else if (wiring_config == 3'b010)
 		begin
 			out[1] <= in[0];
 			out[3] <= in[1];
@@ -158,6 +167,93 @@ module rotor_wiring (in, out, wiring_config);
 			out[18] <= in[23];
 			out[16] <= in[24];
 			out[14] <= in[25];
+		end
+		else if (wiring_config == 3'b100)
+		begin
+			out[0] <= in[4];
+			out[1] <= in[10];
+			out[2] <= in[12];
+			out[3] <= in[5];
+			out[4] <= in[11];
+			out[5] <= in[6];
+			out[6] <= in[3];
+			out[7] <= in[16];
+			out[8] <= in[21];
+			out[9] <= in[25];
+			out[10] <= in[13];
+			out[11] <= in[19];
+			out[12] <= in[14];
+			out[13] <= in[22];
+			out[14] <= in[24];
+			out[15] <= in[7];
+			out[16] <= in[23];
+			out[17] <= in[20];
+			out[18] <= in[18];
+			out[19] <= in[15];
+			out[20] <= in[0];
+			out[21] <= in[8];
+			out[22] <= in[1];
+			out[23] <= in[17];
+			out[24] <= in[2];
+			out[25] <= in[9];
+		end
+		else if (wiring_config == 3'b101)
+		begin
+			out[0] <= in[0];
+			out[1] <= in[9];
+			out[2] <= in[3];
+			out[3] <= in[10];
+			out[4] <= in[18];
+			out[5] <= in[8];
+			out[6] <= in[17];
+			out[7] <= in[20];
+			out[8] <= in[23];
+			out[9] <= in[1];
+			out[10] <= in[11];
+			out[11] <= in[7];
+			out[12] <= in[22];
+			out[13] <= in[19];
+			out[14] <= in[12];
+			out[15] <= in[2];
+			out[16] <= in[16];
+			out[17] <= in[6];
+			out[18] <= in[25];
+			out[19] <= in[13];
+			out[20] <= in[15];
+			out[21] <= in[24];
+			out[22] <= in[5];
+			out[23] <= in[21];
+			out[24] <= in[14];
+			out[25] <= in[4];
+		end
+		else if (wiring_config == 3'b110)
+		begin
+			out[0] <= in[1];
+			out[1] <= in[3];
+			out[2] <= in[5];
+			out[3] <= in[7];
+			out[4] <= in[9];
+			out[5] <= in[11];
+			out[6] <= in[2];
+			out[7] <= in[15];
+			out[8] <= in[17];
+			out[9] <= in[19];
+			out[10] <= in[23];
+			out[11] <= in[21];
+			out[12] <= in[25];
+			out[13] <= in[13];
+			out[14] <= in[24];
+			out[15] <= in[4];
+			out[16] <= in[8];
+			out[17] <= in[22];
+			out[18] <= in[6];
+			out[19] <= in[0];
+			out[20] <= in[10];
+			out[21] <= in[12];
+			out[22] <= in[20];
+			out[23] <= in[18];
+			out[24] <= in[16];
+			out[25] <= in[14];
 		end
 		else
 		begin
