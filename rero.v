@@ -2,7 +2,7 @@
 `include "reflector.v"
 
 module rero (in, out, wheel_config);
-	input [25:0]in;
+	input [25:0]in; // 26 bits, each representing signal at one position. Do not input with z or x
 	output [25:0]out;
 	input [2:0]wheel_config; // 000: I II III, 001: I III II, 010: II I III, 011: II III I, 100: III I II, 101: III II I
 

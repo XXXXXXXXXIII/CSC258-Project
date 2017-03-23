@@ -14,7 +14,8 @@ force {in[0]} 1 0
 force {in[1]} 0
 force {in[2]} 0
 force {in[3]} 0
-force {in[4]} 0
+
+
 
 
 run 1000

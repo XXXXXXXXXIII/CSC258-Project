@@ -9,11 +9,10 @@ add wave {/*}
 force {wheel_config[0]} 0
 force {wheel_config[1]} 0
 force {wheel_config[2]} 0
-force {in[0]} 0 0, 1 3 -r 5
-force {in[1]} 0
-force {in[2]} 0
-force {in[3]} 0
-force {in[4]} 0
 
-
-run 1000
+force {in[12]} 1 0, 0 8
+force {in[14]} 1 10, 0 18
+force {in[13]} 1 20, 0 28
+force {in[14]} 1 30, 0 38
+force {in[22]} 1 40, 0 48
+run 100

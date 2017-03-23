@@ -1,18 +1,19 @@
 module rotor (in, out, rotate, notch, wiring_config);
-	input [25:0]in;
+	input wire [25:0]in;
 	input [2:0]wiring_config; // Rotor I: 000, Rotor II: 001, Rotor III: 010, No Encryption: 011. 1xx for reverse
 	input rotate;
 	output reg notch;
-	output [25:0]out;
+	output wire [25:0]out;
 
 	localparam A = 5'd0, B = 5'd1, C = 5'd2, D = 5'd3, E = 5'd4, F = 5'd5, G = 5'd6, H = 5'd7, I = 5'd8, J = 5'd9, K = 5'd10, L = 5'd11, M = 5'd12, N = 5'd13, 
 			O = 5'd14, P = 5'd15, Q = 5'd16, R = 5'd17, S = 5'd18, T = 5'd19, U = 5'd20, V = 5'd21, W = 5'd22, X = 5'd23, Y = 5'd24, Z = 5'd25;
 
 	reg [4:0]curr_position;
-	wire [51:0]offseti, offseto;
-	wire [51:0]out2;
-	assign offseti = in[25:0] << curr_position;
-	assign offseto = out2[51:0] >> curr_position;
+	wire [51:0]offseti;
+	wire [51:0]offseto;
+	wire [25:0]out2;
+	assign offseti = ({26'b0,in[25:0]} << curr_position);
+	assign offseto = {out2[25:0],26'b0} >> curr_position;
 	assign out[25:0] = (offseto[25:0] | offseto[51:26]);
 
 	initial begin
@@ -20,7 +21,7 @@ module rotor (in, out, rotate, notch, wiring_config);
 		curr_position <= A;
 	end
 
-	rotor_wiring w1(.in(offseti[25:0] | offseti[51:26]), .out(out2[51:26]), .wiring_config(wiring_config[2:0]));
+	rotor_wiring w1(.in(offseti[25:0] | offseti[51:26]), .out(out2[25:0]), .wiring_config(wiring_config[2:0]));
 
 	always @(posedge rotate) // Rotational position of the rotor, not to be confused with ringsetting. 
 	begin: state_table
@@ -71,9 +72,9 @@ endmodule
 
 
 module rotor_wiring (in, out, wiring_config);
-	input [25:0]in;
+	input wire [25:0]in;
 	input [2:0]wiring_config; 
-	output [25:0]out;
+	output wire [25:0]out;
 
 	localparam I = 3'b000, II = 3'b001, III = 3'b010, rI = 3'b100, rII = 3'b101, rIII = 3'b110;
 
