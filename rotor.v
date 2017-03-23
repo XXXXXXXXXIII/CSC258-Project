@@ -73,12 +73,38 @@ endmodule
 module rotor_wiring (in, out, wiring_config);
 	input [25:0]in;
 	input [2:0]wiring_config; 
-	output reg [25:0]out;
+	output [25:0]out;
 
-	initial begin
-		out <= 0;
-	end
+	localparam I = 3'b000, II = 3'b001, III = 3'b010, rI = 3'b100, rII = 3'b101, rIII = 3'b110;
 
+	assign out[0] = wiring_config == I ? in[20] : wiring_config == II ? in[0] : wiring_config == III ? in[19] : wiring_config == rI ? in[4] : wiring_config == rII ? in[0] : wiring_config == rIII ? in[1] : in[0];
+	assign out[1] = wiring_config == I ? in[22] : wiring_config == II ? in[9] : wiring_config == III ? in[0] : wiring_config == rI ? in[10] : wiring_config == rII ? in[9] : wiring_config == rIII ? in[3] : in[1];
+	assign out[2] = wiring_config == I ? in[24] : wiring_config == II ? in[15] : wiring_config == III ? in[6] : wiring_config == rI ? in[12] : wiring_config == rII ? in[3] : wiring_config == rIII ? in[5] : in[2];
+	assign out[3] = wiring_config == I ? in[6] : wiring_config == II ? in[2] : wiring_config == III ? in[1] : wiring_config == rI ? in[5] : wiring_config == rII ? in[10] : wiring_config == rIII ? in[7] : in[3];
+	assign out[4] = wiring_config == I ? in[0] : wiring_config == II ? in[25] : wiring_config == III ? in[15] : wiring_config == rI ? in[11] : wiring_config == rII ? in[18] : wiring_config == rIII ? in[9] : in[4];
+	assign out[5] = wiring_config == I ? in[3] : wiring_config == II ? in[22] : wiring_config == III ? in[2] : wiring_config == rI ? in[6] : wiring_config == rII ? in[8] : wiring_config == rIII ? in[11] : in[5];
+	assign out[6] = wiring_config == I ? in[5] : wiring_config == II ? in[17] : wiring_config == III ? in[18] : wiring_config == rI ? in[3] : wiring_config == rII ? in[17] : wiring_config == rIII ? in[2] : in[6];
+	assign out[7] = wiring_config == I ? in[15] : wiring_config == II ? in[11] : wiring_config == III ? in[3] : wiring_config == rI ? in[16] : wiring_config == rII ? in[20] : wiring_config == rIII ? in[15] : in[7];
+	assign out[8] = wiring_config == I ? in[21] : wiring_config == II ? in[5] : wiring_config == III ? in[16] : wiring_config == rI ? in[21] : wiring_config == rII ? in[23] : wiring_config == rIII ? in[17] : in[8];
+	assign out[9] = wiring_config == I ? in[25] : wiring_config == II ? in[1] : wiring_config == III ? in[4] : wiring_config == rI ? in[25] : wiring_config == rII ? in[1] : wiring_config == rIII ? in[19] : in[9];
+	assign out[10] = wiring_config == I ? in[1] : wiring_config == II ? in[3] : wiring_config == III ? in[20] : wiring_config == rI ? in[13] : wiring_config == rII ? in[11] : wiring_config == rIII ? in[23] : in[10];
+	assign out[11] = wiring_config == I ? in[4] : wiring_config == II ? in[10] : wiring_config == III ? in[5] : wiring_config == rI ? in[19] : wiring_config == rII ? in[7] : wiring_config == rIII ? in[21] : in[11];
+	assign out[12] = wiring_config == I ? in[2] : wiring_config == II ? in[14] : wiring_config == III ? in[21] : wiring_config == rI ? in[14] : wiring_config == rII ? in[22] : wiring_config == rIII ? in[25] : in[12];
+	assign out[13] = wiring_config == I ? in[10] : wiring_config == II ? in[19] : wiring_config == III ? in[13] : wiring_config == rI ? in[22] : wiring_config == rII ? in[19] : wiring_config == rIII ? in[13] : in[13];
+	assign out[14] = wiring_config == I ? in[12] : wiring_config == II ? in[24] : wiring_config == III ? in[25] : wiring_config == rI ? in[24] : wiring_config == rII ? in[12] : wiring_config == rIII ? in[24] : in[14];
+	assign out[15] = wiring_config == I ? in[19] : wiring_config == II ? in[20] : wiring_config == III ? in[7] : wiring_config == rI ? in[7] : wiring_config == rII ? in[2] : wiring_config == rIII ? in[4] : in[15];
+	assign out[16] = wiring_config == I ? in[7] : wiring_config == II ? in[16] : wiring_config == III ? in[24] : wiring_config == rI ? in[23] : wiring_config == rII ? in[16] : wiring_config == rIII ? in[8] : in[16];
+	assign out[17] = wiring_config == I ? in[23] : wiring_config == II ? in[6] : wiring_config == III ? in[8] : wiring_config == rI ? in[20] : wiring_config == rII ? in[6] : wiring_config == rIII ? in[22] : in[17];
+	assign out[18] = wiring_config == I ? in[18] : wiring_config == II ? in[4] : wiring_config == III ? in[23] : wiring_config == rI ? in[18] : wiring_config == rII ? in[25] : wiring_config == rIII ? in[6] : in[18];
+	assign out[19] = wiring_config == I ? in[11] : wiring_config == II ? in[13] : wiring_config == III ? in[9] : wiring_config == rI ? in[15] : wiring_config == rII ? in[13] : wiring_config == rIII ? in[0] : in[19];
+	assign out[20] = wiring_config == I ? in[17] : wiring_config == II ? in[7] : wiring_config == III ? in[22] : wiring_config == rI ? in[0] : wiring_config == rII ? in[15] : wiring_config == rIII ? in[10] : in[20];
+	assign out[21] = wiring_config == I ? in[8] : wiring_config == II ? in[23] : wiring_config == III ? in[11] : wiring_config == rI ? in[8] : wiring_config == rII ? in[24] : wiring_config == rIII ? in[12] : in[21];
+	assign out[22] = wiring_config == I ? in[13] : wiring_config == II ? in[12] : wiring_config == III ? in[17] : wiring_config == rI ? in[1] : wiring_config == rII ? in[5] : wiring_config == rIII ? in[20] : in[22];
+	assign out[23] = wiring_config == I ? in[16] : wiring_config == II ? in[8] : wiring_config == III ? in[10] : wiring_config == rI ? in[17] : wiring_config == rII ? in[21] : wiring_config == rIII ? in[18] : in[23];
+	assign out[24] = wiring_config == I ? in[14] : wiring_config == II ? in[21] : wiring_config == III ? in[14] : wiring_config == rI ? in[2] : wiring_config == rII ? in[14] : wiring_config == rIII ? in[16] : in[24];
+	assign out[25] = wiring_config == I ? in[9] : wiring_config == II ? in[18] : wiring_config == III ? in[12] : wiring_config == rI ? in[9] : wiring_config == rII ? in[4] : wiring_config == rIII ? in[14] : in[25];
+	
+	/*
 	always@(*)
 	begin
 		if (wiring_config == 3'b000)
@@ -284,6 +310,7 @@ module rotor_wiring (in, out, wiring_config);
 			out[24] <= in[24];
 			out[25] <= in[25];
 		end
-	end
+	end 
+	*/
 endmodule
 
