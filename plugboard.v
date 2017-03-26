@@ -1,18 +1,17 @@
-module plugboardChanger(INPUT, OUTPUT, CHANGETO, CHANGE);
-
-    input [25:0] INPUT;
-    input [25:0] CHANGETO;
-    input CHANGE;
+module plugboardchanger(in, out, changeto, change);
+    input [25:0] in;
+    input [25:0] changeto;
+    input change;
     
-    output [25:0] OUTPUT;
-    reg OUTPUT;
+    output [25:0] out;
+    reg out;
     
     always @(*)
-	begin
-	    if (CHANGE)
-		OUTPUT = CHANGETO;
-	    else
-		OUTPUT = INPUT;
-	end
     
+	begin
+	    if (change)
+		out = changeto;
+	    else
+		out = in;
+	end
 endmodule
