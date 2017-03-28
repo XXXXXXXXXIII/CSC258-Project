@@ -1,3 +1,5 @@
+`include "vga_adapter.v"
+
 module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
 	input CLOCK_50;				//	50 MHz
 	input [25:0]in;
@@ -10,10 +12,26 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	output	[9:0]	VGA_R;   				//	VGA Red[9:0]
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
+
+	wire writeEn;
+	reg [2:0] colour;
+	reg [5:0]curr, next, index;
+	reg draw_which; // 0 for lampboard, 1 for wheel
+	wire [48:0]lamp;
+	wire [25:0]wheelletter;
+	reg [7:0]X;
+	wire [7:0] xl, xw;
+	reg [6:0]Y;
+	wire [6:0] yl, yw;
+
+	initial begin
+		curr <= 6'b000001;
+		next <= 0;
+		draw_which <= 0;
+		index <= 0;
+	end
 	
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
-	wire [7:0] cx;
-	wire [7:0] cy;
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
@@ -37,22 +55,6 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
-
-	wire writeEn;
-	reg [2:0] colour;
-	reg [5:0]curr, next, index;
-	reg draw_which; // 0 for lampboard, 1 for wheel
-	wire [48:0]lamp;
-	wire [25:0]wheelletter;
-	wire [7:0]X, xl, xw;
-	wire [6:0]Y, yl, yw;
-
-	initial begin
-		curr <= 6'b000001;
-		next <= 0;
-		draw_which <= 0;
-		index <= 0;
-	end
 
 	assign writeEn = 1'b1;
 
@@ -89,7 +91,7 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	begin
 		if (draw_which == 1'b0) begin
 			if (next[2:0] == 3'b111) begin
-				next[2:0] += 1'b1;
+				next = next + 1'b1;
 			end
 			if (next == 6'b111000) begin
 				curr <= 6'b000000;
@@ -97,11 +99,11 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 				draw_which <= 1'b1;
 			end else begin
 				curr <= next;
-				index += 1'b1;
+				index = index + 1'b1;
 			end
 		end else begin
 			if (next[2:0] == 3'b101) begin
-				next[2:0] += 1'b1;
+				next = next + 1'b1;
 			end
 			if (next == 6'b101000) begin
 				curr <= 6'b000000;
@@ -109,7 +111,7 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 				draw_which <= 1'b0;
 			end else begin
 				curr <= next;
-				index += 1'b1;
+				index = index + 1'b1;
 			end
 		end
 	end
@@ -173,7 +175,7 @@ module lampPosLUT (in, x, y);
 		y <= 0;
 	end
 
-	alwyas @(*)
+	always @(*)
 	begin: pos_LUT
 		case(in)
 			A: begin
@@ -300,35 +302,35 @@ module letterLUT (in, letter);
 		letter <= 25'b0;
 	end
 
-	alwyas @(*)
+	always @(*)
 	begin: letter_LUT
 		case(in)
-			A: letter <= 25'b00100 01010 01110 01010 01010;
-			B: letter <= 25'b01100 01010 01100 01010 01100;
-			C: letter <= 25'b01110 01000 01000 01000 01110;
-			D: letter <= 25'b01100 01010 01010 01010 01100;
-			E: letter <= 25'b01110 01000 01110 01000 01110;
-			F: letter <= 25'b01110 01000 01110 01000 01000;
-			G: letter <= 25'b01110 01000 01010 01010 01110;
-			H: letter <= 25'b01010 01010 01110 01010 01010;
-			I: letter <= 25'b01110 00100 00100 00100 01110;
-			J: letter <= 25'b01110 00100 00100 00100 01100;
-			K: letter <= 25'b10010 10100 11000 10100 10010;
-			L: letter <= 25'b01000 01000 01000 01000 01110;
-			M: letter <= 25'b10001 11011 10101 10001 10001;
-			N: letter <= 25'b10001 11001 10101 10011 10001;
-			O: letter <= 25'b01110 01010 01010 01010 01110;
-			P: letter <= 25'b01110 01010 01110 01000 01000;
-			Q: letter <= 25'b01110 01010 01010 01010 01111;
-			R: letter <= 25'b01100 01010 01100 01010 01010;
-			S: letter <= 25'b01110 01000 01110 00010 01110;
-			T: letter <= 25'b01110 00100 00100 00100 00100;
-			U: letter <= 25'b01010 01010 01010 01010 01110;
-			V: letter <= 25'b01010 01010 01010 01010 00100;
-			W: letter <= 25'b10001 10001 10101 10101 01010;
-			X: letter <= 25'b01010 01010 00100 01010 01010;
-			Y: letter <= 25'b01010 01010 00100 00100 00100;
-			Z: letter <= 25'b01110 00010 00100 01000 01110;
+			A: letter <= 25'b00100_01010_01110_01010_01010;
+			B: letter <= 25'b01100_01010_01100_01010_01100;
+			C: letter <= 25'b01110_01000_01000_01000_01110;
+			D: letter <= 25'b01100_01010_01010_01010_01100;
+			E: letter <= 25'b01110_01000_01110_01000_01110;
+			F: letter <= 25'b01110_01000_01110_01000_01000;
+			G: letter <= 25'b01110_01000_01010_01010_01110;
+			H: letter <= 25'b01010_01010_01110_01010_01010;
+			I: letter <= 25'b01110_00100_00100_00100_01110;
+			J: letter <= 25'b01110_00100_00100_00100_01100;
+			K: letter <= 25'b10010_10100_11000_10100_10010;
+			L: letter <= 25'b01000_01000_01000_01000_01110;
+			M: letter <= 25'b10001_11011_10101_10001_10001;
+			N: letter <= 25'b10001_11001_10101_10011_10001;
+			O: letter <= 25'b01110_01010_01010_01010_01110;
+			P: letter <= 25'b01110_01010_01110_01000_01000;
+			Q: letter <= 25'b01110_01010_01010_01010_01111;
+			R: letter <= 25'b01100_01010_01100_01010_01010;
+			S: letter <= 25'b01110_01000_01110_00010_01110;
+			T: letter <= 25'b01110_00100_00100_00100_00100;
+			U: letter <= 25'b01010_01010_01010_01010_01110;
+			V: letter <= 25'b01010_01010_01010_01010_00100;
+			W: letter <= 25'b10001_10001_10101_10101_01010;
+			X: letter <= 25'b01010_01010_00100_01010_01010;
+			Y: letter <= 25'b01010_01010_00100_00100_00100;
+			Z: letter <= 25'b01110_00010_00100_01000_01110;
 			default: letter <= 0;
 		endcase
 	end
