@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-module GUI
-
-task paintLamp;
-input [24:0]letter; // letter from letterLUT
-output [48:0]lamp; // lamp with each pixel draw
-begin
-	assign lamp = {8'b01111101,~letter[24:20],2'b11,~letter[19:15],2'b11,~letter[14:10],2'b11,~letter[9:5],2'b11,~letter[4:0],8'b10111110};
-end
-endtask
-
-=======
 module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
 	input CLOCK_50;				//	50 MHz
 	input [25:0]in;
@@ -298,7 +286,6 @@ module lampPosLUT (in, x, y);
 			end			
 		endcase
 	end
->>>>>>> 343f710201fe42c3125b0467580f21c46f3ee00e
 endmodule
 
 module letterLUT (in, letter);
