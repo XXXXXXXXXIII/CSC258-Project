@@ -128,12 +128,13 @@ module wheel(in, x, y, letter);
 	letterLUT lLUT(.in(in), .letter(letter));
 endmodule
 
+
 module wheelPosLUT (in, x, y);
 	input [1:0]in;
 	output [7:0]x;
 	output [6:0]y;
 
-	assign x = in == 2'b00 ? 8'd56 : in == 2'b01 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd160;
+	assign x = in == 2'b00 ? 8'd56 : in == 2'b01 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd99;
 	assign y = 7'd82;
 endmodule
 
@@ -277,8 +278,8 @@ module lampPosLUT (in, x, y);
 				y <= 7'd47;
 			end
 			default: begin
-				x <= 8'd160;
-				y <= 7'd120;
+				x <= 8'd40;
+				y <= 7'd47;
 			end			
 		endcase
 	end
@@ -325,7 +326,7 @@ module letterLUT (in, letter);
 			X: letter <= 25'b01010_01010_00100_01010_01010;
 			Y: letter <= 25'b01010_01010_00100_00100_00100;
 			Z: letter <= 25'b01110_00010_00100_01000_01110;
-			default: letter <= 0;
+			default: letter <= 25'b01110_00010_00100_01000_01110;
 		endcase
 	end
 
