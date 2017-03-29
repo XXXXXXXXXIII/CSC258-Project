@@ -10,25 +10,10 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	output	[9:0]	VGA_R;   				//	VGA Red[9:0]
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
-
-	wire writeEn;
-	reg [2:0] colour;
-	reg [5:0]curr, next, index;
-	reg draw_which; // 0 for lampboard, 1 for wheel
-	wire [48:0]lamp;
-	wire [25:0]wheelletter;
-	reg [7:0]X;
-	wire [7:0] xl, xw;
-	reg [6:0]Y;
-	wire [6:0] yl, yw;
-
-	initial begin
-		curr <= 6'b000001;
-		next <= 0;
-		draw_which <= 0;
-		index <= 0;
-	end
 	
+	wire [7:0]X;
+	wire [6:0]Y;
+	wire [2:0]C;
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
@@ -36,10 +21,10 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	vga_adapter VGA(
 			.resetn(1'b1),
 			.clock(CLOCK_50),
-			.colour(colour),
+			.colour(C),
 			.x(X),
 			.y(Y),
-			.plot(writeEn),
+			.plot(1'b1),
 			/* Signals for the DAC to drive the monitor. */
 			.VGA_R(VGA_R),
 			.VGA_G(VGA_G),
@@ -54,67 +39,117 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
-	assign writeEn = 1'b1;
+		datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .xo(X), .yo(Y), .coloro(C));
+		
+endmodule
 
-	lampboard LB(.in(in[25:0]), .x(xl[7:0]), .y(yl[6:0]), .lamp(lamp[48:0]));
-	wheel W1(.in(in), .x(xw), .y(yw), .letter(wheelletter));
+module resetgui (clk, out, state1, state2, state3);
+	input clk;
+	output reg [25:0] out;
+	output [4:0] state1, state2, state3;
 
+	reg [5:0]counter 
+
+	initial begin
+		state <= 0;
+		out <= 26'b1;
+		counter <= 0;
+	end
+
+	always @(posedge clk)
+	begin
+		if (counter == 6'b111111)
+			counter <= 0;
+		else
+			counter <= counter + 1'b1;
+	end
+
+	always @(negedge |(counter))
+	begin
+		if (out == 26'h2000000)
+			out <= 1'b1;
+		else
+			out <= out << 1'b1;
+	end
+
+endmodule
+
+module datapath (in, state1, state2, state3, clk, xo, yo, coloro);
+	input [25:0]in;
+	input [4:0]state1, state2, state3;
+	input clk;
+	output reg [7:0]xo;
+	output reg [6:0]yo;
+	output reg [2:0]coloro;
+	
+	wire [7:0]xw;
+	wire [6:0]yw;
+	wire [24:0]letter;
+	wire [7:0]xl;
+	wire [6:0]yl;
+	wire [48:0]lamp;
+	wire press = |(in);
+	wire [25:0]wheel_letter;
+	reg [1:0]draw_which; 
+	reg [5:0]curr, next;
+	reg [5:0]index;
+	
+	initial begin
+		draw_which <= 0;
+		index <= 0;
+		curr <= 0;
+		next <= 0;
+	end
+	
+	lampboard LB(.in(in), .x(xl), .y(yl), .lamp(lamp));
+	wheel WL(.in(wheel_letter), .x(xw), .y(yw), .letter(letter));
+	
+	assign wheel_letter = draw_which == 2'b1 ? 25'b1 << state1 : draw_which == 2'd2 ? 25'b1 << state2 : draw_which == 2'd3 ? 25'b1 << state3 : 25'b0;
+	
 	always @(*)
 	begin
-		if (draw_which == 1'b0) begin
-			if (next[2:0] == 3'b111) begin
-				next = next + 1'b1;
-			end else begin
-				next <= curr + 1'b1;
-			end
-			X = xl + curr[2:0];
-			Y = yl + curr[5:3];
-			if (lamp[index] == 1'b0) begin
-				colour <= 3'b000;
-			end else begin
-				case (|(in))
-					1'b1: colour <= 3'b110;
-					default: colour <= 3'b111;
-				endcase
-			end
+		if (draw_which == 2'b0) begin
+			next <= curr + 1'b1;
+			xo = xl + curr[2:0];
+			yo = yl + curr[5:3];
+			coloro <= lamp[index]==1'b0 ? 3'b000 : press==1'b1 ? 3'b110 : 3'b111;
 		end else begin
-			if (next[2:0] == 3'b101) begin
-				next = next + 1'b1;
-			end else begin
-				next <= curr + 1'b1;
-			end
-			X = xw + curr[2:0];
-			Y = yw + curr[5:3];
-			if (wheelletter[index] == 1'b1) begin
-				colour <= 3'b111;
-			end else begin
-				colour <= 3'b000;
-			end
+			next <= curr + 1'b1;
+			xo = xw + curr[2:0];
+			yo = yw + curr[5:3];
+			coloro <= letter[index]==1'b0 ? 3'b000 : 3'b111;
 		end
 	end
 
-	always @(posedge CLOCK_50)
+	always @(posedge clk)
 	begin
-		if (draw_which == 1'b0) begin
-			if (next == 6'b111000) begin
+		if (draw_which == 2'b0) begin
+			if (next == 6'b110111) begin
 				curr <= 6'b000000;
 				index <= 0;
-				draw_which <= 1'b1;
+				draw_which <= draw_which + 1'b1;
+			end else if (next[2:0] == 3'b111) begin
+				curr <= next + 1'b1;
+				index <= index + 1'b1;
 			end else begin
 				curr <= next;
-				index = index + 1'b1;
+				index <= index + 1'b1;
 			end
 		end else begin
-			if (next == 6'b101000) begin
+			if (next == 6'b100101) begin
 				curr <= 6'b000000;
 				index <= 0;
-				draw_which <= 1'b0;
+				draw_which <= draw_which + 1'b1;
+			end else if (next[2:0] == 3'b101) begin
+				curr <= next + 2'd3;
+				index <= index + 1'b1;
 			end else begin
 				curr <= next;
 				index = index + 1'b1;
 			end
 		end
 	end
+	
 endmodule
 
 
@@ -134,7 +169,7 @@ module wheelPosLUT (in, x, y);
 	output [7:0]x;
 	output [6:0]y;
 
-	assign x = in == 2'b00 ? 8'd56 : in == 2'b01 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd99;
+	assign x = in == 2'b00 ? 8'd56 : in == 2'b01 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd160;
 	assign y = 7'd82;
 endmodule
 
@@ -276,11 +311,7 @@ module lampPosLUT (in, x, y);
 			Z: begin
 				x <= 8'd40;
 				y <= 7'd47;
-			end
-			default: begin
-				x <= 8'd40;
-				y <= 7'd47;
-			end			
+			end		
 		endcase
 	end
 endmodule
@@ -326,8 +357,26 @@ module letterLUT (in, letter);
 			X: letter <= 25'b01010_01010_00100_01010_01010;
 			Y: letter <= 25'b01010_01010_00100_00100_00100;
 			Z: letter <= 25'b01110_00010_00100_01000_01110;
-			default: letter <= 25'b01110_00010_00100_01000_01110;
 		endcase
 	end
 
 endmodule
+
+
+module fps60(clki, clko);
+	input clki;
+	output reg clko;
+	
+	reg [19:0] frame;
+	
+	always @(posedge clki)
+	begin
+		if (frame == 0) begin
+			frame <= 20'b11001011011100110101;
+			clko = clki;
+		end
+		else
+			frame <= frame - 1'b1;
+			clko = 0;
+	end
+endmodule 
