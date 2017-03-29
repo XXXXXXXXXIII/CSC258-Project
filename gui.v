@@ -1,5 +1,3 @@
-`include "vga_adapter.v"
-
 module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
 	input CLOCK_50;				//	50 MHz
 	input [25:0]in;
@@ -64,7 +62,11 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	always @(*)
 	begin
 		if (draw_which == 1'b0) begin
-			next <= curr + 1'b1;
+			if (next[2:0] == 3'b111) begin
+				next = next + 1'b1;
+			end else begin
+				next <= curr + 1'b1;
+			end
 			X = xl + curr[2:0];
 			Y = yl + curr[5:3];
 			if (lamp[index] == 1'b0) begin
@@ -75,8 +77,12 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 					default: colour <= 3'b111;
 				endcase
 			end
-		end	else begin
-			next <= curr + 1'b1;
+		end else begin
+			if (next[2:0] == 3'b101) begin
+				next = next + 1'b1;
+			end else begin
+				next <= curr + 1'b1;
+			end
 			X = xw + curr[2:0];
 			Y = yw + curr[5:3];
 			if (wheelletter[index] == 1'b1) begin
@@ -90,9 +96,6 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 	always @(posedge CLOCK_50)
 	begin
 		if (draw_which == 1'b0) begin
-			if (next[2:0] == 3'b111) begin
-				next = next + 1'b1;
-			end
 			if (next == 6'b111000) begin
 				curr <= 6'b000000;
 				index <= 0;
@@ -102,9 +105,6 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 				index = index + 1'b1;
 			end
 		end else begin
-			if (next[2:0] == 3'b101) begin
-				next = next + 1'b1;
-			end
 			if (next == 6'b101000) begin
 				curr <= 6'b000000;
 				index <= 0;
@@ -116,6 +116,7 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 		end
 	end
 endmodule
+
 
 module wheel(in, x, y, letter);
 	input [25:0]in;
@@ -142,23 +143,16 @@ module lampboard(in, x, y, lamp);
 	output [6:0]y;
 	output [48:0]lamp;
 
-	wire [24:0]letter;
+	wire [24:0]letterWire;
 	wire [7:0]xo;
 	wire [6:0]yo;
+	
+	assign lamp = {8'b01111101,~letterWire[24:20],2'b11,~letterWire[19:15],2'b11,~letterWire[14:10],2'b11,~letterWire[9:5],2'b11,~letterWire[4:0],8'b10111110};
 
-	letterLUT lLUT(.in(in[25:0]), .letter(letter[24:0]));
+	letterLUT lLUT(.in(in[25:0]), .letter(letterWire[24:0]));
 	lampPosLUT lpLUT(.in(in[25:0]), .x(xo[7:0]), .y(yo[6:0]));
-	paintlamp(letter[24:0], lamp[48:0]);
 	assign x = xo;
 	assign y = yo;
-
-	task paintLamp;
-	input [24:0]letter; // letter from letterLUT
-	output [48:0]lamp; // lamp with each pixel draw
-	begin
-		assign lamp = {8'b01111101,~letter[24:20],2'b11,~letter[19:15],2'b11,~letter[14:10],2'b11,~letter[9:5],2'b11,~letter[4:0],8'b10111110};
-	end
-	endtask
 endmodule
 
 module lampPosLUT (in, x, y);
