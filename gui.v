@@ -1,5 +1,5 @@
-module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
-	input CLOCK_50;				//	50 MHz
+module gui(CLOCK_50, in, state1, state2, state3, reset, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
+	input CLOCK_50, reset;				//	50 MHz
 	input [25:0]in;
 	input [4:0]state1, state2, state3;
 	output	VGA_CLK;   				//	VGA Clock
@@ -39,14 +39,26 @@ module gui(CLOCK_50, in, state1, state2, state3, VGA_CLK, VGA_HS, VGA_VS, VGA_BL
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
-		datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .xo(X), .yo(Y), .coloro(C));
-		
+	reg [25:0]letterin;
+	wire [25:0]resetout;
+	always @(posedge CLOCK_50)
+	begin
+		if (reset == 1'b0) begin
+			letterin = resetout;
+		end
+		else begin
+			letterin = in;
+		end
+	end
+
+	resetgui r0(.clk(CLOCK_50), .out(resetout));
+	datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .xo(X), .yo(Y), .coloro(C));
+	
 endmodule
 
-module resetgui (clk, out, state1, state2, state3);
+module resetgui (clk, out);
 	input clk;
 	output reg [25:0] out;
-	output [4:0] state1, state2, state3;
 
 	reg [5:0]counter 
 

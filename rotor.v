@@ -1,9 +1,10 @@
-module rotor (in, out, rotate, notch, wiring_config);
+module rotor (in, out, rotate, notch, wiring_config, state);
 	input wire [25:0]in;
 	input [2:0]wiring_config; // Rotor I: 000, Rotor II: 001, Rotor III: 010, No Encryption: 011. 1xx for reverse
 	input rotate;
 	output reg notch;
 	output wire [25:0]out;
+	output [4:0]state;
 
 	localparam A = 5'd0, B = 5'd1, C = 5'd2, D = 5'd3, E = 5'd4, F = 5'd5, G = 5'd6, H = 5'd7, I = 5'd8, J = 5'd9, K = 5'd10, L = 5'd11, M = 5'd12, N = 5'd13, 
 			O = 5'd14, P = 5'd15, Q = 5'd16, R = 5'd17, S = 5'd18, T = 5'd19, U = 5'd20, V = 5'd21, W = 5'd22, X = 5'd23, Y = 5'd24, Z = 5'd25;
@@ -15,6 +16,7 @@ module rotor (in, out, rotate, notch, wiring_config);
 	assign offseti = ({26'b0,in[25:0]} << curr_position);
 	assign offseto = {out2[25:0],26'b0} >> curr_position;
 	assign out[25:0] = (offseto[25:0] | offseto[51:26]);
+	assign state = curr_position;
 
 	initial begin
 		notch <= 0;
