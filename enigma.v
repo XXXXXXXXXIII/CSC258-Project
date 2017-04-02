@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
 
 	input CLOCK_50;
@@ -27,11 +26,9 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 endmodule
 
 
-=======
-module enigma(in, change, wheel_config);
+module plugboardChanger(in, change);
 
 	input [25:0] in, change;
-	input [2:0] wheel_config;
 
 	reg counter = 4'd0;
 	reg [25:0] r1, input1, input2, input3, input4, input5, input6, input7, input8, input9, input10;
@@ -110,8 +107,4 @@ module enigma(in, change, wheel_config);
 				endcase
 			end
 	end
-	rero rotors_reflector(.in(w1), .out(out), .wheel_config(wheel_config));
 endmodule
-
-
->>>>>>> 8e13b374ffc1c63e17a19c1a12e4fa5a94e0913e
