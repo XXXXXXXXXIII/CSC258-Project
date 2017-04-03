@@ -51,8 +51,9 @@ module gui(CLOCK_50, in, state1, state2, state3, reset, VGA_CLK, VGA_HS, VGA_VS,
 		end
 	end
 
-	resetgui r0(.clk(CLOCK_50), .out(resetout));
-	datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .xo(X), .yo(Y), .coloro(C));
+	wire resetclk;
+	resetgui r0(.clk(resetclk), .out(resetout));
+	datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .clko(resetclk), .xo(X), .yo(Y), .coloro(C));
 	
 endmodule
 
@@ -60,23 +61,14 @@ module resetgui (clk, out);
 	input clk;
 	output reg [25:0] out;
 
-	reg [5:0]counter 
+	reg [5:0]counter;
 
 	initial begin
-		state <= 0;
 		out <= 26'b1;
 		counter <= 0;
 	end
 
 	always @(posedge clk)
-	begin
-		if (counter == 6'b111111)
-			counter <= 0;
-		else
-			counter <= counter + 1'b1;
-	end
-
-	always @(negedge |(counter))
 	begin
 		if (out == 26'h2000000)
 			out <= 1'b1;
@@ -86,10 +78,11 @@ module resetgui (clk, out);
 
 endmodule
 
-module datapath (in, state1, state2, state3, clk, xo, yo, coloro);
+module datapath (in, state1, state2, state3, clk, clko, xo, yo, coloro);
 	input [25:0]in;
 	input [4:0]state1, state2, state3;
 	input clk;
+	output wire clko;
 	output reg [7:0]xo;
 	output reg [6:0]yo;
 	output reg [2:0]coloro;
@@ -113,10 +106,13 @@ module datapath (in, state1, state2, state3, clk, xo, yo, coloro);
 		next <= 0;
 	end
 	
+	//wire [25:0]in2;
+	//resetgui r0(.clk(clko), .out(in2));
 	lampboard LB(.in(in), .x(xl), .y(yl), .lamp(lamp));
-	wheel WL(.in(wheel_letter), .x(xw), .y(yw), .letter(letter));
+	wheel WL(.in(wheel_letter), .no(draw_which), .x(xw), .y(yw), .letter(letter));
 	
 	assign wheel_letter = draw_which == 2'b1 ? 25'b1 << state1 : draw_which == 2'd2 ? 25'b1 << state2 : draw_which == 2'd3 ? 25'b1 << state3 : 25'b0;
+	assign clko = ~(|draw_which);
 	
 	always @(*)
 	begin
@@ -165,13 +161,14 @@ module datapath (in, state1, state2, state3, clk, xo, yo, coloro);
 endmodule
 
 
-module wheel(in, x, y, letter);
+module wheel(in, no, x, y, letter);
 	input [25:0]in;
+	input [1:0]no;
 	output [7:0]x;
 	output [6:0]y;
 	output [24:0]letter;
 
-	wheelPosLUT wpLUT(.in(in), .x(x), .y(y));
+	wheelPosLUT wpLUT(.in(no), .x(x), .y(y));
 	letterLUT lLUT(.in(in), .letter(letter));
 endmodule
 
@@ -181,7 +178,7 @@ module wheelPosLUT (in, x, y);
 	output [7:0]x;
 	output [6:0]y;
 
-	assign x = in == 2'b00 ? 8'd56 : in == 2'b01 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd160;
+	assign x = in == 2'b11 ? 8'd56 : in == 2'b10 ? 8'd77 : in == 2'b01 ? 8'd99 : 8'd160;
 	assign y = 7'd82;
 endmodule
 
