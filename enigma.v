@@ -116,7 +116,7 @@ module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
 	   .clk(CLOCK_50)
 	);
 	
-	always @(posedge scan_ready)
+	always @(posedge |(scan_ready))
 	
 	begin
 		case(scan_ready)
