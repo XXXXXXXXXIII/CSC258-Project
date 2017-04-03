@@ -80,3 +80,65 @@ module plugboardChanger(in, change);
 			end
 	end
 endmodule
+
+
+module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
+	
+	input PS2_CLK, PS2_DAT, CLOCK_50;
+
+	wire [7:0] scan_code;
+	wire read, scan_ready;
+	reg [7:0] scan_history[1:2];
+	
+	output reg [25:0] r;
+	
+	
+	keyboard kbd(
+	  .keyboard_clk(PS2_CLK),
+	  .keyboard_data(PS2_DAT),
+	  .clock50(CLOCK_50),
+	  .reset(0),
+	  .read(read),
+	  .scan_ready(scan_ready),
+	  .scan_code(scan_code)
+	);
+	
+	oneshot pulser(
+	   .pulse_out(read),
+	   .trigger_in(scan_ready),
+	   .clk(CLOCK_50)
+	);
+	
+	always @(posedge scan_ready)
+	
+	begin
+		case(scan_ready)
+			8'h1C: r = 26'h1; 			//A
+			8'h32: r = 26'h2;			//B
+			8'h21: r = 26'h4;			//C
+			8'h23: r = 26'h8;			//D
+			8'h24: r = 26'h10;			//E
+			8'h2B: r = 26'h20;			//F
+			8'h34: r = 26'h40;			//G
+			8'h33: r = 26'h80;			//H
+			8'h43: r = 26'h100;			//I
+			8'h3B: r = 26'h200;			//J
+			8'h42: r = 26'h400;			//K
+			8'h4B: r = 26'h800;			//L
+			8'h3A: r = 26'h1000;			//M
+			8'h31: r = 26'h2000;			//N
+			8'h44: r = 26'h4000;			//O
+			8'h4D: r = 26'h8000;			//P
+			8'h15: r = 26'h10000;			//Q
+			8'h2D: r = 26'h20000;			//R
+			8'h1B: r = 26'h40000;			//S
+			8'h2C: r = 26'h80000;			//T
+			8'h3C: r = 26'h100000;			//U
+			8'h2A: r = 26'h200000;			//V
+			8'h1D: r = 26'h400000;			//W
+			8'h22: r = 26'h800000;			//X
+			8'h35: r = 26'h1000000;			//Y
+			8'h1A: r = 26'h20000000;		//Z
+		endcase
+	end
+endmodule
