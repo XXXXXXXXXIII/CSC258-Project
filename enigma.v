@@ -14,31 +14,17 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;
 
-	wire [25:0]rero_out, front_plug_out, rear_plug_out;
+	wire [25:0]rero_out, front_plug_out, rear_plug_out, out_to_ui;
 	wire [4:0]state1, state2, state3;
 	
 	input PS2_CLK, PS2_DAT;
 	reg [25:0] r;
-
-
-    keyboard kbd(.PS2_CLK(PS2_CLK),.PS2_DAT(PS2_DAT),.CLOCK_50(CLOCK_50), .r(r));    
-    plugboardChanger plugboard (.in(r), .change(change), .r1(front_plug_out)); //TODO keyboard/plugboard. connect front_plug_out to output, add pin-input as needed.
-    rero rotors_reflector(.in(front_plug_out), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state3(state3));
-    gui gui0(.CLOCK_50(CLOCK_50), .in(rear_plug_out), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
-    	.VGA_CLK(VGA_CLK), .VGA_HS(VGA_HS), .VGA_VS(VGA_VS), .VGA_BLANK_N(VGA_BLANK_N), .VGA_SYNC_N(VGA_SYNC_N), .VGA_R(VGA_R), .VGA_G(VGA_G), .VGA_B(VGA_B));
-
-endmodule
-
-
-module plugboardChanger(in, change, r1);
-
-	input [25:0] in, change;
-
+	
 	reg counter;
 	reg [25:0] r1, input1, input2, input3, input4, input5, input6, input7, input8, input9, input10;
 	reg [25:0] output1, output2, output3, output4, output5, output6, output7, output8, output9, output10;
 	
-	output r1;
+	
 
 	initial begin
 		counter <= 0;
@@ -47,57 +33,91 @@ module plugboardChanger(in, change, r1);
 		output1 <= 0; output2 <= 0; output3 <= 0; output4 <= 0; output5 <= 0; output6 <= 0; output7 <= 0; output8 <= 0; output9 <= 0; output10 <= 0;
 	end
 
+
+    keyboard kbd(.PS2_CLK(PS2_CLK),.PS2_DAT(PS2_DAT),.CLOCK_50(CLOCK_50), .r(r));
+    
+    plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
+    , .in3(input3), .in4(input4), .in5(input5), .in6(input6),.in7(input7), .in8(input8), .in9(input9),
+    .in10(input10), .out1(output1), .out2(output2), .out3(output3),.out4(output4), .out5(output5), .out6(output6),
+    .out7(output7), .out8(output8), .out9(output9), .out10(output10));
+    
+    
+    rero rotors_reflector(.in(front_plug_out), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state3(state3));
+    
+    plugboardChanger plugboard (.in(rear_plug_out), .r1(out_to_ui), .in1(input1), .in2(input2)
+    , .in3(input3), .in4(input4), .in5(input5), .in6(input6),.in7(input7), .in8(input8), .in9(input9),
+    .in10(input10), .out1(output1), .out2(output2), .out3(output3),.out4(output4), .out5(output5), .out6(output6),
+    .out7(output7), .out8(output8), .out9(output9), .out10(output10));
+    
+    gui gui0(.CLOCK_50(CLOCK_50), .in(out_to_ui), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
+    	.VGA_CLK(VGA_CLK), .VGA_HS(VGA_HS), .VGA_VS(VGA_VS), .VGA_BLANK_N(VGA_BLANK_N), .VGA_SYNC_N(VGA_SYNC_N), .VGA_R(VGA_R), .VGA_G(VGA_G), .VGA_B(VGA_B));
+	
+    
+
+endmodule
+
+
+module plugboardChanger(in, r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10,
+			out1, out2, out3, out4, out5, out6, out7, out8, out9, out10);
+
+	input [25:0] in, change;
+	output r1;
+	
+	input [25:0] r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10;
+	input [25:0] out1, out2, out3, out4, out5, out6, out7, out8, out9, out10;
+	input counter;
+
 	always @(*)
 	begin
 		if (counter < 20)
 			begin
 				case(counter)
-					5'd1:input1 = in;
-					5'd2:output1 = change;
-					5'd3:input2 = in;
-					5'd4:output2 = change;
-					5'd5:input3 = in;
-					5'd6:output3 = change;
-					5'd7:input4 = in;
-					5'd8:output4 = change;
-					5'd9:input5 = in;
-					5'd10:output5 = change;
-					5'd11:input6 = in;
-					5'd12:output6 = change;
-					5'd13:input7 = in;
-					5'd14:output7 = change;
-					5'd15:input8 = in;
-					5'd16:output8 = change;
-					5'd17:input9 = in;
-					5'd18:output10 = change;
-					5'd19:input11 = in;
-					5'd20:output11 = change;
+					5'd1:in1 = in;
+					5'd2:out1 = in;
+					5'd3:in2 = in;
+					5'd4:out2 = in;
+					5'd5:in3 = in;
+					5'd6:out3 = in;
+					5'd7:in4 = in;
+					5'd8:out4 = in;
+					5'd9:in5 = in;
+					5'd10:out5 = in;
+					5'd11:in6 = in;
+					5'd12:out6 = in;
+					5'd13:in7 = in;
+					5'd14:out7 = in;
+					5'd15:in8 = in;
+					5'd16:out8 = in;
+					5'd17:in9 = in;
+					5'd18:out10 = in;
+					5'd19:in11 = in;
+					5'd20:out11 = in;
 				endcase
 				counter = counter + 1;
 			end
 		else
 			begin
 				case(in)
-					input1: r1 = output1;
-					input2: r1 = output2;
-					input3: r1 = output3;
-					input4: r1 = output4;
-					input5: r1 = output5;
-					input6: r1 = output6;
-					input7: r1 = output7;
-					input8: r1 = output8;
-					input9: r1 = output9;
-					input10: r1 = output10;
-					output1: r1 = input1;
-					output2: r1 = input2;
-					output3: r1 = input3;
-					output4: r1 = input4;
-					output5: r1 = input5;
-					output6: r1 = input6;
-					output7: r1 = input7;
-					output8: r1 = input8;
-					output9: r1 = input9;
-					output10: r1 = input10;
+					in1: r1 = out1;
+					in2: r1 = out2;
+					in3: r1 = out3;
+					in4: r1 = out4;
+					in5: r1 = out5;
+					in6: r1 = out6;
+					in7: r1 = out7;
+					in8: r1 = out8;
+					in9: r1 = out9;
+					in10: r1 = out10;
+					out1: r1 = in1;
+					out2: r1 = in2;
+					out3: r1 = in3;
+					out4: r1 = in4;
+					out5: r1 = in5;
+					out6: r1 = in6;
+					out7: r1 = in7;
+					out8: r1 = in8;
+					out9: r1 = in9;
+					out10: r1 = in10;
 					default: r1 = in;
 				endcase
 			end
