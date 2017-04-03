@@ -36,58 +36,30 @@ module plugboardChanger(in, change);
 
 	always @(*)
 	begin
-		if (counter < 10)
+		if (counter < 20)
 			begin
-					if (counter == 4'd1)
-							begin
-								input1 = in;
-								output1 = change;
-							end
-					if (counter == 4'd2)
-							begin
-								input2 = in;
-								output2 = change;
-							end
-					if (counter == 4'd3)
-							begin
-								input3 = in;
-								output3 = change;
-						   end
-					if (counter == 4'd4)
-							begin
-								input4 = in;
-								output4 = change;
-							end
-					if (counter == 4'd5)
-							begin
-								input5 = in;
-								output5 = change;
-							end
-					if (counter == 4'd6)
-							begin
-								input6 = in;
-								output6 = change;
-							end
-					if (counter == 4'd7)
-							begin
-								input7 = in;
-								output7 = change;
-							end
-					if (counter == 4'd8)
-							begin
-								input8 = in;
-								output8 = change;
-							end
-					if (counter == 4'd9)
-							begin
-								input9 = in;
-								output9 = change;
-							end
-					if (counter == 4'd10)
-							begin
-								input10 = in;
-								output10 = change;
-							end
+				case(counter)
+					5'd1:input1 = in;
+					5'd2:output1 = change;
+					5'd3:input2 = in;
+					5'd4:output2 = change;
+					5'd5:input3 = in;
+					5'd6:output3 = change;
+					5'd7:input4 = in;
+					5'd8:output4 = change;
+					5'd9:input5 = in;
+					5'd10:output5 = change;
+					5'd11:input6 = in;
+					5'd12:output6 = change;
+					5'd13:input7 = in;
+					5'd14:output7 = change;
+					5'd15:input8 = in;
+					5'd16:output8 = change;
+					5'd17:input9 = in;
+					5'd18:output10 = change;
+					5'd19:input11 = in;
+					5'd20:output11 = change;
+				endcase
 				counter = counter + 1;
 			end
 		else
