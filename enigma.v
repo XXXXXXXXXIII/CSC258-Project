@@ -1,7 +1,7 @@
 module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
-		PS2_CLK, PS2_DAT);
+		PS2_CLK, PS2_DAT,HEX0, HEX1);
 
-	input CLOCK_50;
+	input CLOCK_50 HEX0, HEX1;
 	input [3:0]KEY;
 	input [9:0]SW;
 
@@ -34,7 +34,7 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 	end
 
 
-    keyboard kbd(.PS2_CLK(PS2_CLK),.PS2_DAT(PS2_DAT),.CLOCK_50(CLOCK_50), .r(r));
+    keyboardu kbd(.PS2_CLK(PS2_CLK),.PS2_DAT(PS2_DAT),.CLOCK_50(CLOCK_50), .r(r), .HEX0(HEX0), .HEX1(HEX1));
     
     
 /*plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
@@ -123,12 +123,12 @@ module plugboardChanger(in, r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in1
 				endcase
 			end
 	end
-endmodule
+endmodule*/
 
 
-module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
+module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1);
 	
-	input PS2_CLK, PS2_DAT, CLOCK_50;
+	input PS2_CLK, PS2_DAT, CLOCK_50, HEX0, HEX1;
 
 	wire [7:0] scan_code;
 	wire read, scan_ready;
@@ -153,7 +153,10 @@ module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
 	   .clk(CLOCK_50)
 	);
 	
-	always @(posedge |(scan_ready))
+	hex_7seg dsp0(scan_ready[3:0],HEX0);
+	hex_7seg dsp1(scan_ready[7:4],HEX1);
+	
+	always @(posedge scan_ready)
 	
 	begin
 		case(scan_ready)
@@ -185,4 +188,4 @@ module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
 			8'h1A: r = 26'h2000000;		//Z
 		endcase
 	end
-endmodule */
+endmodule 
