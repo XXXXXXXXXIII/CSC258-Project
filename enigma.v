@@ -19,7 +19,7 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 
     
     // plugboardChanger plugboard (.in(in), .out(w1), .changeto(changeto), .change(change)); //TODO keyboard/plugboard. connect front_plug_out to output, add pin-input as needed.
-    rero rotors_reflector(.in(front_plug_out), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state2(state3));
+    rero rotors_reflector(.in(front_plug_out), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state3(state3));
     gui gui0(.CLOCK_50(CLOCK_50), .in(rear_plug_out), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
     	.VGA_CLK(VGA_CLK), .VGA_HS(VGA_HS), .VGA_VS(VGA_VS), .VGA_BLANK_N(VGA_BLANK_N), .VGA_SYNC_N(VGA_SYNC_N), .VGA_R(VGA_R), .VGA_G(VGA_G), .VGA_B(VGA_B));
 
@@ -30,9 +30,16 @@ module plugboardChanger(in, change);
 
 	input [25:0] in, change;
 
-	reg counter = 4'd0;
+	reg counter;
 	reg [25:0] r1, input1, input2, input3, input4, input5, input6, input7, input8, input9, input10;
 	reg [25:0] output1, output2, output3, output4, output5, output6, output7, output8, output9, output10;
+
+	initial begin
+		counter <= 0;
+		r1 <= 0;
+		input1 <= 0; input2 <= 0; input3 <= 0; input4 <= 0; input5 <= 0; input6 <= 0; input7 <= 0; input8 <= 0; input9 <= 0; input10 <= 0;
+		output1 <= 0; output2 <= 0; output3 <= 0; output4 <= 0; output5 <= 0; output6 <= 0; output7 <= 0; output8 <= 0; output9 <= 0; output10 <= 0;
+	end
 
 	always @(*)
 	begin
