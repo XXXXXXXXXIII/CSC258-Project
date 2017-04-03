@@ -36,18 +36,19 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 
     keyboard kbd(.PS2_CLK(PS2_CLK),.PS2_DAT(PS2_DAT),.CLOCK_50(CLOCK_50), .r(r));
     
-    plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
+    
+/*plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
     , .in3(input3), .in4(input4), .in5(input5), .in6(input6),.in7(input7), .in8(input8), .in9(input9),
     .in10(input10), .out1(output1), .out2(output2), .out3(output3),.out4(output4), .out5(output5), .out6(output6),
-    .out7(output7), .out8(output8), .out9(output9), .out10(output10));
+    .out7(output7), .out8(output8), .out9(output9), .out10(output10)); */
     
     
-    rero rotors_reflector(.in(front_plug_out), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state3(state3));
+    rero rotors_reflector(.in(r), .out(rero_out), .wheel_config(SW[2:0]), .rotate1(KEY[1]), .rotate2(KEY[2]), .rotate3(KEY[3]), .state1(state1), .state2(state2), .state3(state3));
     
-    plugboardChanger plugboard (.in(rear_plug_out), .r1(out_to_ui), .in1(input1), .in2(input2)
+    /*plugboardChanger plugboardr (.in(rear_plug_out), .r1(out_to_ui), .in1(input1), .in2(input2)
     , .in3(input3), .in4(input4), .in5(input5), .in6(input6),.in7(input7), .in8(input8), .in9(input9),
     .in10(input10), .out1(output1), .out2(output2), .out3(output3),.out4(output4), .out5(output5), .out6(output6),
-    .out7(output7), .out8(output8), .out9(output9), .out10(output10));
+    .out7(output7), .out8(output8), .out9(output9), .out10(output10)); */
     
     gui gui0(.CLOCK_50(CLOCK_50), .in(out_to_ui), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
     	.VGA_CLK(VGA_CLK), .VGA_HS(VGA_HS), .VGA_VS(VGA_VS), .VGA_BLANK_N(VGA_BLANK_N), .VGA_SYNC_N(VGA_SYNC_N), .VGA_R(VGA_R), .VGA_G(VGA_G), .VGA_B(VGA_B));
@@ -56,16 +57,16 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 
 endmodule
 
-
+/*
 module plugboardChanger(in, r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10,
 			out1, out2, out3, out4, out5, out6, out7, out8, out9, out10);
 
 	input [25:0] in, change;
-	output r1;
+	output reg [25:0]r1;
 	
-	input [25:0] r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10;
-	input [25:0] out1, out2, out3, out4, out5, out6, out7, out8, out9, out10;
-	input counter;
+	inout [25:0] in1, in2, in3, in4, in5, in6, in7, in8, in9, in10;
+	inout [25:0] out1, out2, out3, out4, out5, out6, out7, out8, out9, out10;
+	reg counter;
 
 	always @(*)
 	begin
@@ -89,9 +90,9 @@ module plugboardChanger(in, r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in1
 					5'd15:in8 = in;
 					5'd16:out8 = in;
 					5'd17:in9 = in;
-					5'd18:out10 = in;
-					5'd19:in11 = in;
-					5'd20:out11 = in;
+					5'd18:out9 = in;
+					5'd19:in10 = in;
+					5'd20:out10 = in;
 				endcase
 				counter = counter + 1;
 			end
@@ -181,7 +182,7 @@ module keyboard (PS2_CLK,PS2_DAT,CLOCK_50, r);
 			8'h1D: r = 26'h400000;			//W
 			8'h22: r = 26'h800000;			//X
 			8'h35: r = 26'h1000000;			//Y
-			8'h1A: r = 26'h20000000;		//Z
+			8'h1A: r = 26'h2000000;		//Z
 		endcase
 	end
-endmodule
+endmodule */
