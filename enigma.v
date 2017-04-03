@@ -82,6 +82,16 @@ module plugboardChanger(in, change);
 					input8: r1 = output8;
 					input9: r1 = output9;
 					input10: r1 = output10;
+					output1: r1 = input1;
+					output2: r1 = input2;
+					output3: r1 = input3;
+					output4: r1 = input4;
+					output5: r1 = input5;
+					output6: r1 = input6;
+					output7: r1 = input7;
+					output8: r1 = input8;
+					output9: r1 = input9;
+					output10: r1 = input10;
 					default: r1 = in;
 				endcase
 			end
