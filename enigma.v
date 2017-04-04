@@ -1,9 +1,9 @@
 
 module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
-		PS2_CLK, PS2_DAT,HEX0, HEX1);
+		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3);
 
 	input CLOCK_50;
-	input [6:0] HEX0, HEX1;
+	output[6:0] HEX0, HEX1, HEX2, HEX3;
 	input [3:0]KEY;
 	input [9:0]SW;
 
@@ -29,14 +29,14 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 	
 
 	initial begin
-		counter <= 0;
+	counter <= 0;
 		r1 <= 0;
 		input1 <= 0; input2 <= 0; input3 <= 0; input4 <= 0; input5 <= 0; input6 <= 0; input7 <= 0; input8 <= 0; input9 <= 0; input10 <= 0;
 		output1 <= 0; output2 <= 0; output3 <= 0; output4 <= 0; output5 <= 0; output6 <= 0; output7 <= 0; output8 <= 0; output9 <= 0; output10 <= 0;
 	end
 
-
-    keyboardu kbd(.PS2_CLK(PS2_CLK), .PS2_DAT(PS2_DAT), .CLOCK_50(CLOCK_50), .r(r), .HEX0(HEX0), .HEX1(HEX1));
+	
+    keyboardu kbd(.PS2_CLK(PS2_CLK), .PS2_DAT(PS2_DAT), .CLOCK_50(CLOCK_50), .r(r), .HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3));
     
     
 /*plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
@@ -128,10 +128,10 @@ module plugboardChanger(in, r1, in1, in2, in3, in4, in5, in6, in7, in8, in9, in1
 endmodule*/
 
 
-module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1);
+module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1, HEX2, HEX3);
 	
 	input PS2_CLK, PS2_DAT, CLOCK_50;
-	input [6:0] HEX0, HEX1;
+	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4;
 
 	wire [7:0] scan_code;
 	wire read, scan_ready;
@@ -156,39 +156,51 @@ module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1);
 	   .clk(CLOCK_50)
 	);
 	
-	hex_7seg dsp0(.hex_digit(scan_code[3:0]),.seg(HEX0));
-	hex_7seg dsp1(.hex_digit(scan_code[7:4]),.seg(HEX1));
+	always @(posedge scan_ready)
+		
+	begin
+				scan_history[2] <= scan_history[1];
+				scan_history[1] <= scan_code;
+	end
+	
+	hex_7seg dsp0(.hex_digit(scan_history[1][3:0]),.seg(HEX0));
+	hex_7seg dsp1(.hex_digit(scan_history[1][7:4]),.seg(HEX1));
+	
+	hex_7seg dsp2(.hex_digit(scan_history[2][3:0]),.seg(HEX2));
+	hex_7seg dsp3(.hex_digit(scan_history[2][7:4]),.seg(HEX3));
 	
 	always @(posedge scan_ready)
 	
 	begin
-		case(scan_code)
-			8'h1C: r = 26'h1; 			//A
-			8'h32: r = 26'h2;			//B
-			8'h21: r = 26'h4;			//C
-			8'h23: r = 26'h8;			//D
-			8'h24: r = 26'h10;			//E
-			8'h2B: r = 26'h20;			//F
-			8'h34: r = 26'h40;			//G
-			8'h33: r = 26'h80;			//H
-			8'h43: r = 26'h100;			//I
-			8'h3B: r = 26'h200;			//J
-			8'h42: r = 26'h400;			//K
-			8'h4B: r = 26'h800;			//L
-			8'h3A: r = 26'h1000;			//M
-			8'h31: r = 26'h2000;			//N
-			8'h44: r = 26'h4000;			//O
-			8'h4D: r = 26'h8000;			//P
-			8'h15: r = 26'h10000;			//Q
-			8'h2D: r = 26'h20000;			//R
-			8'h1B: r = 26'h40000;			//S
-			8'h2C: r = 26'h80000;			//T
-			8'h3C: r = 26'h100000;			//U
-			8'h2A: r = 26'h200000;			//V
-			8'h1D: r = 26'h400000;			//W
-			8'h22: r = 26'h800000;			//X
-			8'h35: r = 26'h1000000;			//Y
-			8'h1A: r = 26'h2000000;		//Z
+		case({scan_history[1],scan_history[2][7:4]})
+			12'h1CF: r = 26'h1; 				//A
+			12'h32F: r = 26'h2;				//B
+			12'h21F: r = 26'h4;				//C
+			12'h23F: r = 26'h8;				//D
+			12'h24F: r = 26'h10;				//E
+			12'h2BF: r = 26'h20;				//F
+			12'h34F: r = 26'h40;				//G
+			12'h33F: r = 26'h80;				//H
+			12'h43F: r = 26'h100;			//I
+			12'h3BF: r = 26'h200;			//J
+			12'h42F: r = 26'h400;			//K
+			12'h4BF: r = 26'h800;			//L
+			12'h3AF: r = 26'h1000;			//M
+			12'h31F: r = 26'h2000;			//N
+			12'h44F: r = 26'h4000;			//O
+			12'h4DF: r = 26'h8000;			//P
+			12'h15F: r = 26'h10000;			//Q
+			12'h2DF: r = 26'h20000;			//R
+			12'h1BF: r = 26'h40000;			//S
+			12'h2CF: r = 26'h80000;			//T
+			12'h3CF: r = 26'h100000;			//U
+			12'h2AF: r = 26'h200000;			//V
+			12'h1DF: r = 26'h400000;			//W
+			12'h22F: r = 26'h800000;			//X
+			12'h35F: r = 26'h1000000;			//Y
+			12'h1AF: r = 26'h2000000;		//Z
+			default: r = 26'h0;
 		endcase
 	end
+
 endmodule 
