@@ -131,7 +131,7 @@ endmodule*/
 module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1, HEX2, HEX3);
 	
 	input PS2_CLK, PS2_DAT, CLOCK_50;
-	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4;
+	output [6:0] HEX0, HEX1, HEX2, HEX3;
 
 	wire [7:0] scan_code;
 	wire read, scan_ready;

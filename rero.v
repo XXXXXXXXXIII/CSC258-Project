@@ -1,6 +1,3 @@
-`include "rotor.v"
-`include "reflector.v"
-
 module rero (in, out, wheel_config, rotate1, rotate2, rotate3, state1, state2, state3);
 	input [25:0]in; // 26 bits, each representing signal at one position. Do not input with z or x
 	input rotate1, rotate2, rotate3;
