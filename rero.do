@@ -10,9 +10,7 @@ force {wheel_config[0]} 0
 force {wheel_config[1]} 0
 force {wheel_config[2]} 0
 
-force {in[12]} 1 0, 0 8
-force {in[14]} 1 10, 0 18
-force {in[13]} 1 20, 0 28
-force {in[14]} 1 30, 0 38
-force {in[22]} 1 40, 0 48
+force {rotate1} 0 0, 1 10 -r 20
+
+force {in[12]} 1 0, 0 8 -r 16
 run 1000
