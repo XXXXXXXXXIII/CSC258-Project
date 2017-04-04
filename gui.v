@@ -39,6 +39,7 @@ module gui(CLOCK_50, in, state1, state2, state3, reset, VGA_CLK, VGA_HS, VGA_VS,
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
+	/*
 	reg [25:0]letterin;
 	wire [25:0]resetout;
 	always @(posedge CLOCK_50)
@@ -49,11 +50,11 @@ module gui(CLOCK_50, in, state1, state2, state3, reset, VGA_CLK, VGA_HS, VGA_VS,
 		else begin
 			letterin = in;
 		end
-	end
+	end */
 
-	wire resetclk;
-	resetgui r0(.clk(resetclk), .out(resetout));
-	datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .clko(resetclk), .xo(X), .yo(Y), .coloro(C));
+	//wire resetclk;
+	//resetgui r0(.clk(resetclk), .out(resetout));
+	datapath d0 (.in(letterin), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .reset(reset), .clko(), .xo(X), .yo(Y), .coloro(C));
 	
 endmodule
 
@@ -78,10 +79,10 @@ module resetgui (clk, out);
 
 endmodule
 
-module datapath (in, state1, state2, state3, clk, clko, xo, yo, coloro);
+module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 	input [25:0]in;
 	input [4:0]state1, state2, state3;
-	input clk;
+	input clk, reset;
 	output wire clko;
 	output reg [7:0]xo;
 	output reg [6:0]yo;
@@ -95,7 +96,7 @@ module datapath (in, state1, state2, state3, clk, clko, xo, yo, coloro);
 	wire [48:0]lamp;
 	wire press = |(in);
 	wire [25:0]wheel_letter;
-	reg [1:0]draw_which; 
+	reg [4:0]draw_which; 
 	reg [5:0]curr, next;
 	reg [5:0]index;
 	
@@ -108,30 +109,33 @@ module datapath (in, state1, state2, state3, clk, clko, xo, yo, coloro);
 	
 	//wire [25:0]in2;
 	//resetgui r0(.clk(clko), .out(in2));
-	lampboard LB(.in(in), .x(xl), .y(yl), .lamp(lamp));
-	wheel WL(.in(wheel_letter), .no(draw_which), .x(xw), .y(yw), .letter(letter));
+	lampboard LB(.in(26'b1 << draw_which), .x(xl), .y(yl), .lamp(lamp));
+	wheel WL(.in(wheel_letter), .no(draw_which[1:0]), .x(xw), .y(yw), .letter(letter));
 	
-	assign wheel_letter = draw_which == 2'b1 ? 25'b1 << state1 : draw_which == 2'd2 ? 25'b1 << state2 : draw_which == 2'd3 ? 25'b1 << state3 : 25'b0;
+	assign wheel_letter = draw_which == 'd26 ? 25'b1 << state1 : draw_which == 'd27 ? 25'b1 << state2 : draw_which == 'd28 ? 25'b1 << state3 : 25'b0;
 	assign clko = ~(|draw_which);
 	
 	always @(*)
 	begin
-		if (draw_which == 2'b0) begin
+		if (draw_which < 'd26) begin
 			next <= curr + 1'b1;
 			xo = xl + curr[2:0];
 			yo = yl + curr[5:3];
-			coloro <= lamp[index]==1'b0 ? 3'b000 : press==1'b1 ? 3'b110 : 3'b111;
+			coloro <= lamp['d49 - index]==1'b0 ? 3'b000 : reset==1'b0 ? 3'b111 : press==1'b1 ? 3'b110 : 3'b111;
 		end else begin
 			next <= curr + 1'b1;
 			xo = xw + curr[2:0];
 			yo = yw + curr[5:3];
-			coloro <= letter[index]==1'b0 ? 3'b000 : 3'b111;
+			coloro <= letter['d25 - index]==1'b0 ? 3'b000 : 3'b111;
 		end
 	end
 
 	always @(posedge clk)
 	begin
-		if (draw_which == 2'b0) begin
+		if (draw_which == 5'd29) begin
+			draw_which <= 'b0;
+		end
+		if (draw_which < 'd26) begin
 			if (next == 6'b110111) begin
 				curr <= 6'b000000;
 				index <= 0;
@@ -178,7 +182,7 @@ module wheelPosLUT (in, x, y);
 	output [7:0]x;
 	output [6:0]y;
 
-	assign x = in == 2'b11 ? 8'd56 : in == 2'b10 ? 8'd77 : in == 2'b01 ? 8'd99 : 8'd160;
+	assign x = in == 2'b00 ? 8'd56 : in == 2'b11 ? 8'd77 : in == 2'b10 ? 8'd99 : 8'd0;
 	assign y = 7'd82;
 endmodule
 
@@ -192,7 +196,7 @@ module lampboard(in, x, y, lamp);
 	wire [7:0]xo;
 	wire [6:0]yo;
 	
-	assign lamp = {8'b01111101,~letterWire[24:20],2'b11,~letterWire[19:15],2'b11,~letterWire[14:10],2'b11,~letterWire[9:5],2'b11,~letterWire[4:0],8'b10111110};
+	assign lamp = {8'b01111101,~letterWire[24:20],2'b11,~letterWire[19:15],2'b11,~letterWire[14:10],2'b11,~letterWire[9:5],2'b11,~letterWire[4:0],8'b10111111};
 
 	letterLUT lLUT(.in(in[25:0]), .letter(letterWire[24:0]));
 	lampPosLUT lpLUT(.in(in[25:0]), .x(xo[7:0]), .y(yo[6:0]));
