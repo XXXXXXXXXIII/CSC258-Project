@@ -1,9 +1,9 @@
 
 module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
-		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3);
+		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3, HEX4);
 
 	input CLOCK_50;
-	output[6:0] HEX0, HEX1, HEX2, HEX3;
+	output[6:0] HEX0, HEX1, HEX2, HEX3, HEX4;
 	input [3:0]KEY;
 	input [9:0]SW;
 
@@ -37,7 +37,7 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
 
 	
     keyboardu kbd(.PS2_CLK(PS2_CLK), .PS2_DAT(PS2_DAT), .CLOCK_50(CLOCK_50), .r(r), .HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3));
-    
+    hex_7seg dsp4(.hex_digit(rero_out[3:0]),.seg(HEX4));
     
 /*plugboardChanger plugboard (.in(r), .r1(front_plug_out), .in1(input1), .in2(input2)
     , .in3(input3), .in4(input4), .in5(input5), .in6(input6),.in7(input7), .in8(input8), .in9(input9),
@@ -52,7 +52,7 @@ module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC
     .in10(input10), .out1(output1), .out2(output2), .out3(output3),.out4(output4), .out5(output5), .out6(output6),
     .out7(output7), .out8(output8), .out9(output9), .out10(output10)); */
     
-    gui gui0(.CLOCK_50(CLOCK_50), .in(out_to_ui), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
+    gui gui0(.CLOCK_50(CLOCK_50), .in(rero_out), .state1(state1), .state2(state2), .state3(state3), .reset(KEY[0]), 
     	.VGA_CLK(VGA_CLK), .VGA_HS(VGA_HS), .VGA_VS(VGA_VS), .VGA_BLANK_N(VGA_BLANK_N), .VGA_SYNC_N(VGA_SYNC_N), .VGA_R(VGA_R), .VGA_G(VGA_G), .VGA_B(VGA_B));
 	
     
@@ -169,7 +169,7 @@ module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1, HEX2, HEX3);
 	hex_7seg dsp2(.hex_digit(scan_history[2][3:0]),.seg(HEX2));
 	hex_7seg dsp3(.hex_digit(scan_history[2][7:4]),.seg(HEX3));
 	
-	always @(posedge scan_ready)
+	always @(*)
 	
 	begin
 		case({scan_history[1],scan_history[2][7:4]})

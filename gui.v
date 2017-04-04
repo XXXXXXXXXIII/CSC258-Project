@@ -54,7 +54,7 @@ module gui(CLOCK_50, in, state1, state2, state3, reset, VGA_CLK, VGA_HS, VGA_VS,
 
 	//wire resetclk;
 	//resetgui r0(.clk(resetclk), .out(resetout));
-	datapath d0 (.in(letterin), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .reset(reset), .clko(), .xo(X), .yo(Y), .coloro(C));
+	datapath d0 (.in(in), .state1(state1), .state2(state2), .state3(state3), .clk(CLOCK_50), .reset(reset), .clko(), .xo(X), .yo(Y), .coloro(C));
 	
 endmodule
 
@@ -94,7 +94,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 	wire [7:0]xl;
 	wire [6:0]yl;
 	wire [48:0]lamp;
-	wire press = |(in);
+	wire press = (in == (26'b1 << draw_which));
 	wire [25:0]wheel_letter;
 	reg [4:0]draw_which; 
 	reg [5:0]curr, next;
@@ -121,12 +121,12 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 			next <= curr + 1'b1;
 			xo = xl + curr[2:0];
 			yo = yl + curr[5:3];
-			coloro <= lamp['d49 - index]==1'b0 ? 3'b000 : reset==1'b0 ? 3'b111 : press==1'b1 ? 3'b110 : 3'b111;
+			coloro <= lamp['d48 - index]==1'b0 ? 3'b000 : reset==1'b0 ? 3'b111 : press==1'b1 ? 3'b110 : 3'b111;
 		end else begin
 			next <= curr + 1'b1;
 			xo = xw + curr[2:0];
 			yo = yw + curr[5:3];
-			coloro <= letter['d25 - index]==1'b0 ? 3'b000 : 3'b111;
+			coloro <= letter['d24 - index]==1'b0 ? 3'b000 : 3'b111;
 		end
 	end
 
@@ -153,7 +153,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 				index <= 0;
 				draw_which <= draw_which + 1'b1;
 			end else if (next[2:0] == 3'b101) begin
-				curr <= next + 2'd3;
+				curr <= next + 'd3;
 				index <= index + 1'b1;
 			end else begin
 				curr <= next;
@@ -196,7 +196,7 @@ module lampboard(in, x, y, lamp);
 	wire [7:0]xo;
 	wire [6:0]yo;
 	
-	assign lamp = {8'b01111101,~letterWire[24:20],2'b11,~letterWire[19:15],2'b11,~letterWire[14:10],2'b11,~letterWire[9:5],2'b11,~letterWire[4:0],8'b10111111};
+	assign lamp = {8'b01111101,~letterWire[24:20],2'b11,~letterWire[19:15],2'b11,~letterWire[14:10],2'b11,~letterWire[9:5],2'b11,~letterWire[4:0],8'b10111110};
 
 	letterLUT lLUT(.in(in[25:0]), .letter(letterWire[24:0]));
 	lampPosLUT lpLUT(.in(in[25:0]), .x(xo[7:0]), .y(yo[6:0]));
