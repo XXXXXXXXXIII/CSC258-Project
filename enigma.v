@@ -1,8 +1,8 @@
 module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
-		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3, HEX4);
+		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3);
 
 	input CLOCK_50;
-	output[6:0] HEX0, HEX1, HEX2, HEX3, HEX4;
+	output[6:0] HEX0, HEX1, HEX2, HEX3;
 	input [3:0]KEY;
 	input [9:0]SW;
 
