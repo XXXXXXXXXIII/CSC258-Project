@@ -22,14 +22,14 @@ module rero (in, out, wheel_config, rotate1, rotate2, rotate3, state1, state2, s
 		endcase
  	end
 	
-	assign turn1 = (|(in))||rotate1;
+	assign turn1 = |(in[25:0]);
 
-	rotor r1(.in(in), .out(w1), .rotate(turn1), .notch(turn2), .wiring_config(3'b000 | wiring[1:0]), .state(state1));
-	rotor r2(.in(w1), .out(w2), .rotate(turn2||rotate2), .notch(turn3), .wiring_config(3'b000 | wiring[3:2]), .state(state2));
-	rotor r3(.in(w2), .out(w3), .rotate(turn3||rotate3), .notch(), .wiring_config(3'b000 | wiring[5:4]), .state(state3));
+	rotor r1(.in(in), .out(w1), .rotate(turn1|rotate1), .notch(turn2), .wiring_config(3'b000 | wiring[1:0]), .state(state1));
+	rotor r2(.in(w1), .out(w2), .rotate(turn2|rotate2), .notch(turn3), .wiring_config(3'b000 | wiring[3:2]), .state(state2));
+	rotor r3(.in(w2), .out(w3), .rotate(turn3|rotate3), .notch(), .wiring_config(3'b000 | wiring[5:4]), .state(state3));
 	reflector ref(.in(w3), .out(w4));
-	rotor r3r(.in(w4), .out(w5), .rotate(turn3||rotate3), .notch(), .wiring_config(3'b100 | wiring[5:4]), .state());
-	rotor r2r(.in(w5), .out(w6), .rotate(turn2||rotate2), .notch(), .wiring_config(3'b100 | wiring[3:2]), .state());
-	rotor r1r(.in(w6), .out(out), .rotate(turn1||rotate1), .notch(), .wiring_config(3'b100 | wiring[1:0]), .state());
+	rotor r3r(.in(w4), .out(w5), .rotate(turn3|rotate3), .notch(), .wiring_config(3'b100 | wiring[5:4]), .state());
+	rotor r2r(.in(w5), .out(w6), .rotate(turn2|rotate2), .notch(), .wiring_config(3'b100 | wiring[3:2]), .state());
+	rotor r1r(.in(w6), .out(out), .rotate(turn1|rotate1), .notch(), .wiring_config(3'b100 | wiring[1:0]), .state());
 	
 endmodule 

@@ -101,7 +101,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 	reg [5:0]curr, next;
 	reg [5:0]index;
 	reg [8:0]paint_point;
-	localparam y_offset = 4'd10;
+	localparam y_offset = 'd10;
 	
 	initial begin
 		draw_which <= 0;
@@ -134,7 +134,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 		end else begin
 			next <= curr + 1'b1;
 			xo = xw + curr[2:0];
-			yo = yw + curr[5:3] + y_offset - 2'd2;
+			yo = yw + curr[5:3] + y_offset;
 			coloro <= letter['d24 - index]==1'b0 ? 3'b000 : 3'b111;
 		end
 	end
@@ -157,8 +157,8 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 				index <= index + 1'b1;
 			end
 		end else if (draw_which == 'd29) begin
-			if (paint_point == 'd323) begin
-				draw_which <= draw_which + 1'b1;
+			if (paint_point == 'd322) begin
+				draw_which = draw_which + 1'b1;
 				curr <= 0;
 				paint_point <= 0;
 			end else begin
@@ -419,7 +419,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 						xp <= 'd64;
 						yp <= 'd19;
 					end
-					'd322: begin
+					'd63: begin
 						xp <= 'd64;
 						yp <= 'd18;
 					end
@@ -1152,7 +1152,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 						yp <= 'd97;
 					end
 					'd246: begin
-						xp <= 'd106;
+						xp <= 'd95;
 						yp <= 'd87;
 					end
 					'd247: begin
@@ -1196,7 +1196,7 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 						yp <= 'd87;
 					end
 					'd257: begin
-						xp <= 'd106;
+						xp <= 'd95;
 						yp <= 'd97;
 					end
 					'd258: begin
@@ -1384,83 +1384,80 @@ module datapath (in, state1, state2, state3, clk, reset, clko, xo, yo, coloro);
 						yp <= 'd96;
 					end
 					'd304: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd88;
 					end
 					'd305: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd89;
 					end
 					'd306: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd90;
 					end
 					'd307: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd91;
 					end
 					'd308: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd92;
 					end
 					'd309: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd93;
 					end
 					'd310: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd94;
 					end
 					'd311: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd95;
 					end
 					'd312: begin
-						xp <= 'd96;
+						xp <= 'd95;
 						yp <= 'd96;
 					end
 					'd313: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd88;
 					end
 					'd314: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd89;
 					end
 					'd315: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd90;
 					end
 					'd316: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd91;
 					end
 					'd317: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd92;
 					end
 					'd318: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd93;
 					end
 					'd319: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd94;
 					end
 					'd320: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd95;
 					end
 					'd321: begin
-						xp <= 'd106;
+						xp <= 'd105;
 						yp <= 'd96;
 					end
-					default: begin
-						xp <= 'd200;
-						yp <= 'd200;
-					end
+					
 				endcase
-				paint_point <= paint_point + 1'b1;
+				paint_point = paint_point + 1'b1;
 			end
 		end else begin
 			if (next == 6'b100101) begin
