@@ -1,7 +1,7 @@
-module enigma (CLOCK_50, CLOCK_25, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
+module enigma (CLOCK_50, KEY, SW, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B,
 		PS2_CLK, PS2_DAT,HEX0, HEX1,HEX2, HEX3, HEX4);
 
-	input CLOCK_50, CLOCK_25;
+	input CLOCK_50;
 	output[6:0] HEX0, HEX1, HEX2, HEX3, HEX4;
 	input [3:0]KEY;
 	input [9:0]SW;
@@ -105,12 +105,10 @@ module keyboardu (PS2_CLK,PS2_DAT,CLOCK_50, r, HEX0, HEX1, HEX2, HEX3);
 	   .clk(CLOCK_50)
 	);
 	
-	always @(posedge scan_ready)
-		
+	always @(posedge scan_ready)		
 	begin
 		scan_history[2] <= scan_history[1];
 		scan_history[1] <= scan_code;
-		
 	end
 
 	always @(*)
